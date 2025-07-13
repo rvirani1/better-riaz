@@ -41,32 +41,18 @@ class AudioManager:
                 print("\a")
     
     def _play_macos_sound(self, habit_type):
-        """Play sound on macOS using system sounds or text-to-speech"""
-        # Different system sounds for different habits
+        """Play sound on macOS using custom MP3 files or system sounds as fallback"""
+        # Different custom sounds for different habits
         sound_map = {
-            "about-to-chomp": "/System/Library/Sounds/Ping.aiff",
-            "chomping": "/System/Library/Sounds/Ping.aiff",
-            "eating": "/System/Library/Sounds/Ping.aiff",
-            "pondering": "/System/Library/Sounds/Ping.aiff",
+            "about-to-chomp": "audio/about-to-chomp.mp3",
+            "chomping": "audio/chomping.mp3",
+            "eating": "audio/eating.mp3",
+            "pondering": "audio/pondering.mp3",
             "default": "/System/Library/Sounds/Ping.aiff"
         }
         
         sound_file = sound_map.get(habit_type, sound_map["default"])
-        
-        # Check if sound file exists and play it
-        if os.path.exists(sound_file):
-            os.system(f"afplay {sound_file}")
-        else:
-            # Fallback to text-to-speech
-            messages = {
-                "about-to-chomp": "Stop chewing your shirt",
-                "chomping": "Stop chomping",
-                "eating": "Stop eating",
-                "pondering": "Stop pondering",
-                "default": "Bad habit detected"
-            }
-            message = messages.get(habit_type, messages["default"])
-            os.system(f"say '{message}'")
+        os.system(f"afplay {sound_file}")
     
     def test_audio(self):
         """Test audio functionality"""
@@ -85,22 +71,3 @@ class AudioManager:
             return False
         finally:
             self.cooldown_seconds = original_cooldown
-    
-    def set_enabled(self, enabled):
-        """Enable or disable audio warnings"""
-        self.enabled = enabled
-        self.logger.info(f"Audio warnings {'enabled' if enabled else 'disabled'}")
-    
-    def set_cooldown(self, seconds):
-        """Set cooldown period between warnings"""
-        self.cooldown_seconds = max(0, seconds)
-        self.logger.info(f"Audio cooldown set to {self.cooldown_seconds} seconds")
-    
-    def get_status(self):
-        """Get current audio system status"""
-        return {
-            "enabled": self.enabled,
-            "cooldown_seconds": self.cooldown_seconds,
-            "last_warning_time": self.last_warning_time,
-            "platform": "macOS"
-        } 

@@ -241,16 +241,6 @@ class HabitMonitor:
         self.stop_monitoring()
         sys.exit(0)
     
-    def get_status(self):
-        """Get current monitoring status"""
-        return {
-            "is_monitoring": self.is_monitoring,
-            "last_detection": self.last_detection_time,
-            "session_stats": self.stats_tracker.get_session_summary() if self.stats_tracker else None,
-            "log_file": self.log_file,
-            "session_start": self.session_start_time
-        }
-    
     def get_configuration(self):
         """Get current configuration"""
         return {
