@@ -32,7 +32,4 @@ SHOW_WEBCAM_FEED = os.getenv("SHOW_WEBCAM_FEED", "False").lower() == "true"  # S
 
 # Logging Settings
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")        # DEBUG, INFO, WARNING, ERROR
-# Note: Logging always enabled with timestamped files in logs/ directory
-
-# Data Storage
-STATISTICS_FILE = os.getenv("STATISTICS_FILE", "logs/habit_statistics.json") 
+# Note: Logging always enabled with timestamped files in logs/ directory 

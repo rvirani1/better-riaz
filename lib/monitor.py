@@ -47,16 +47,13 @@ class HabitMonitor:
             cooldown_seconds=self.config.get("AUDIO_WARNING_COOLDOWN", 5)
         )
         
-        # Disable display manager for file-only logging
+        # Display manager for CLI dashboard
         self.display_manager = DisplayManager(
             refresh_rate=self.config.get("REFRESH_RATE", 1.0),
             show_header=True
         )
-        self.display_enabled = False  # Disable stdout display
         
-        self.stats_tracker = StatsTracker(
-            stats_file=self.config.get("STATISTICS_FILE", "logs/habit_statistics.json")
-        )
+        self.stats_tracker = StatsTracker()
         
         # Pipeline and monitoring state
         self.pipeline = None
@@ -129,9 +126,8 @@ class HabitMonitor:
             self.stats_tracker.start_session()
             
             # Set stats tracker and start display (if enabled)
-            if self.display_enabled:
-                self.display_manager.set_stats_tracker(self.stats_tracker)
-                self.display_manager.start_display()
+            self.display_manager.set_stats_tracker(self.stats_tracker)
+            self.display_manager.start_display()
             
             # Start the pipeline
             self.is_monitoring = True
@@ -154,6 +150,12 @@ class HabitMonitor:
         try:
             # Extract prediction details and determine if habit was detected
             habit_detected, prediction_data = self._process_prediction(result)
+            
+            # Update display with latest detection info
+            self.display_manager.update_detection_info(
+                prediction_data['top_class'], 
+                prediction_data['confidence']
+            )
             
             # Always update stats (detected or not)
             self.stats_tracker.update_habit_detection(
@@ -222,16 +224,14 @@ class HabitMonitor:
                 self.logger.error(f"Error stopping pipeline: {e}")
         
         # Stop display (if enabled)
-        if self.display_enabled:
-            self.display_manager.stop_display()
+        self.display_manager.stop_display()
         
         # End session and save stats
         if self.stats_tracker:
             self.stats_tracker.end_session()
             
             # Show final summary (if display enabled)
-            if self.display_enabled:
-                self.display_manager.show_shutdown_message(self.stats_tracker)
+            self.display_manager.show_shutdown_message(self.stats_tracker)
         
         session_duration = datetime.now() - self.session_start_time
         self.logger.info(f"Session ended. Duration: {session_duration}")

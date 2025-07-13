@@ -2,7 +2,6 @@
 Statistics tracker for habit monitoring analytics
 """
 
-import json
 import logging
 from datetime import datetime, timedelta
 from .utils import format_duration, safe_divide, format_percentage
@@ -11,8 +10,7 @@ from .utils import format_duration, safe_divide, format_percentage
 class StatsTracker:
     """Tracks and analyzes habit detection statistics"""
     
-    def __init__(self, stats_file="logs/habit_statistics.json"):
-        self.stats_file = stats_file
+    def __init__(self):
         self.logger = logging.getLogger(__name__)
         
         # Session tracking
@@ -36,8 +34,6 @@ class StatsTracker:
         if self.is_habit_active:
             # End any active habit session
             self._end_habit_session()
-        
-        self._save_statistics()
         
         self.logger.info("Statistics session ended")
     
@@ -165,31 +161,6 @@ class StatsTracker:
             "detection_rate": f"{stats['detection_rate']:.1f}/min",
             "is_habit_active": stats["is_habit_active"]
         }
-    
-    def _save_statistics(self):
-        """Save statistics to file"""
-        try:
-            data = {
-                "session_start_time": self.session_start_time.isoformat() if self.session_start_time else None,
-                "total_detections": self.total_detections,
-                "total_habit_time_seconds": self.total_habit_time.total_seconds(),
-                "habit_sessions": [
-                    {
-                        "start_time": session["start_time"].isoformat(),
-                        "end_time": session["end_time"].isoformat(),
-                        "duration_seconds": session["duration"].total_seconds()
-                    }
-                    for session in self.habit_sessions
-                ]
-            }
-            
-            with open(self.stats_file, 'w') as f:
-                json.dump(data, f, indent=2)
-            
-            self.logger.info(f"Statistics saved to {self.stats_file}")
-            
-        except Exception as e:
-            self.logger.error(f"Failed to save statistics: {e}")
     
     def reset_statistics(self):
         """Reset all statistics"""
