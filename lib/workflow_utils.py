@@ -3,6 +3,7 @@ Utility functions for working with workflow responses and Pydantic models
 """
 
 import logging
+from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 from pydantic import ValidationError
 from .models import parse_workflow_response, WorkflowResponse, WorkflowResult
@@ -180,10 +181,19 @@ class WorkflowProcessor:
         timeline = []
         
         for i, result in enumerate(results):
+            # Handle case where output_image is None (no detections)
+            if result.output_image is not None:
+                timestamp = result.output_image.video_metadata.frame_timestamp
+                frame_number = result.output_image.video_metadata.frame_number
+            else:
+                # Use current time as fallback when no output_image is available
+                timestamp = datetime.now()
+                frame_number = i  # Use sequence number as fallback frame number
+            
             timeline.append({
                 'sequence': i,
-                'timestamp': result.output_image.video_metadata.frame_timestamp,
-                'frame_number': result.output_image.video_metadata.frame_number,
+                'timestamp': timestamp,
+                'frame_number': frame_number,
                 'class': result.top_class,
                 'confidence': result.detection_confidence,
                 'is_habit': result.is_chomping_detected,

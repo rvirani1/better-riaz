@@ -92,7 +92,7 @@ class DetectionPredictions(BaseModel):
 
 class WorkflowResult(BaseModel):
     """Complete workflow result structure"""
-    output_image: OutputImage
+    output_image: Optional[OutputImage] = None
     top_class: str
     classification_predictions: ClassificationPredictions
     detection_predictions: Optional[DetectionPredictions] = None

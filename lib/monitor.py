@@ -5,6 +5,7 @@ Simplified habit monitor using Roboflow's InferencePipeline
 import time
 import signal
 import sys
+import pprint
 import os
 from datetime import datetime
 from inference import InferencePipeline
@@ -208,14 +209,14 @@ class HabitMonitor:
             
         except ValidationError as e:
             self.logger.error(f"CRITICAL ERROR: Failed to parse workflow response with Pydantic models: {e}")
-            self.logger.error(f"Raw result: {result}")
+            self.logger.error(f"Raw result: {pprint.pformat(result)}")
             self.logger.error("Application will terminate due to invalid workflow response format")
             self.stop_monitoring()
             sys.exit(1)
             
         except Exception as e:
             self.logger.error(f"CRITICAL ERROR: Unexpected error processing prediction result: {e}")
-            self.logger.error(f"Raw result: {result}")
+            self.logger.error(f"Raw result: {pprint.pformat(result)}")
             self.logger.error("Application will terminate due to processing error")
             self.stop_monitoring()
             sys.exit(1)
