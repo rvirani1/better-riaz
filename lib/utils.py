@@ -93,11 +93,3 @@ def safe_divide(numerator, denominator):
     if denominator == 0:
         return 0
     return numerator / denominator
-
-
-def format_percentage(value, total):
-    """Format a percentage with proper handling of edge cases"""
-    if total == 0:
-        return "0.0%"
-    percentage = (value / total) * 100
-    return f"{percentage:.1f}%" 

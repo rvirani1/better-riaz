@@ -60,8 +60,7 @@
     "- top_class: The top classification result",
     "- classification_predictions: Detailed classification information",
     "- detection_predictions: Bounding box detections (can be null or empty)",
-    "Use utility functions from lib.models to safely access workflow response data",
-    "The WorkflowProcessor class in lib/workflow_utils.py provides helper methods"
+    "Use utility functions from lib.models to safely access workflow response data"
   ],
   "supported_habit_classes": [
     "chomping",

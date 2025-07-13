@@ -4,7 +4,7 @@ Statistics tracker for habit monitoring analytics
 
 import logging
 from datetime import datetime, timedelta
-from .utils import format_duration, safe_divide, format_percentage
+from .utils import format_duration, safe_divide
 
 
 class StatsTracker:
