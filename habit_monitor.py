@@ -18,23 +18,30 @@ from lib import HabitMonitor
 import config
 
 @click.command()
-@click.option('--workspace', default=config.WORKSPACE_NAME, 
-              help='Roboflow workspace name')
-@click.option('--workflow-id', default=config.WORKFLOW_ID, 
-              help='Workflow ID for habit detection')
-@click.option('--confidence', default=config.CONFIDENCE_THRESHOLD, type=float, 
-              help='Confidence threshold for habit detection')
-@click.option('--camera', default=config.CAMERA_INDEX, type=int, 
-              help='Camera index to use')
-@click.option('--skip-validation', is_flag=True, 
-              help='Skip setup validation (not recommended)')
-@click.option('--show-config', is_flag=True, 
-              help='Show current configuration')
-def main(workspace, workflow_id, confidence, camera, skip_validation, show_config):
+def main():
     """
     Habit Monitor CLI - Monitor webcam for bad habits using Roboflow workflows
+    
+    All configuration is loaded from the .env file. Required variables:
+    - ROBOFLOW_API_KEY: Your Roboflow API key
+    - WORKSPACE_NAME: Your Roboflow workspace name  
+    - WORKFLOW_ID: Your workflow ID for habit detection
+    - CONFIDENCE_THRESHOLD: Confidence threshold (0.0-1.0)
     """
     from colorama import Fore
+    
+    # Validate required environment variables
+    required_vars = {
+        'ROBOFLOW_API_KEY': config.ROBOFLOW_API_KEY,
+        'WORKSPACE_NAME': config.WORKSPACE_NAME,
+        'WORKFLOW_ID': config.WORKFLOW_ID
+    }
+    
+    for var_name, var_value in required_vars.items():
+        if not var_value or var_value == "your-api-key-here":
+            print(f"{Fore.RED}❌ {var_name} is not set or invalid in .env file")
+            print(f"{Fore.RED}Please set it in your .env file: {var_name}=your-value")
+            sys.exit(1)
     
     # Create configuration dictionary from config module
     config_dict = {
@@ -43,51 +50,38 @@ def main(workspace, workflow_id, confidence, camera, skip_validation, show_confi
         if not key.startswith('_') and key.isupper()
     }
     
-    # Create monitor instance
+    # Create monitor instance with fixed values
     monitor = HabitMonitor(
-        workspace_name=workspace,
-        workflow_id=workflow_id,
-        confidence_threshold=confidence,
-        camera_index=camera,
+        workspace_name=config.WORKSPACE_NAME,
+        workflow_id=config.WORKFLOW_ID,
+        confidence_threshold=config.CONFIDENCE_THRESHOLD,
         config=config_dict
     )
     
-    # Show configuration if requested (only if display enabled)
-    if show_config:
-        if hasattr(monitor, 'display_enabled') and monitor.display_enabled:
-            monitor.display_manager.show_configuration(monitor.get_configuration())
-        else:
-            # Log configuration to file instead
-            config_info = monitor.get_configuration()
-            monitor.logger.info("Current configuration:")
-            for key, value in config_info.items():
-                monitor.logger.info(f"  {key}: {value}")
-        return
+    # Always show configuration
+    config_info = monitor.get_configuration()
+    monitor.logger.info("Current configuration:")
+    for key, value in config_info.items():
+        monitor.logger.info(f"  {key}: {value}")
     
-    # Run validation by default (unless skipped)
-    if not skip_validation:
-        monitor.logger.info("Running system validation...")
-        results = monitor.validate_setup()
-        
-        # Log validation results to file instead of displaying
-        monitor.logger.info("Validation results:")
-        for check_name, result in results.items():
-            status = "✅ PASSED" if result.get("success", False) else "❌ FAILED"
-            message = result.get("message", "No details")
-            monitor.logger.info(f"  {check_name}: {status} - {message}")
-        
-        # Only proceed if all validations pass
-        if not all(result.get("success", False) for result in results.values()):
-            monitor.logger.error("Setup validation failed. Please check the log file for details.")
-            monitor.logger.error("You can skip validation with --skip-validation (not recommended)")
-            sys.exit(1)
-        
-        monitor.logger.info("✅ All validations passed!")
+    # Always run validation
+    monitor.logger.info("Running system validation...")
+    results = monitor.validate_setup()
     
-    # Check if API key is set
-    if not os.getenv("ROBOFLOW_API_KEY"):
-        monitor.logger.warning("ROBOFLOW_API_KEY environment variable not set")
-        monitor.logger.warning("Please set it with: export ROBOFLOW_API_KEY=your-api-key")
+    # Log validation results
+    monitor.logger.info("Validation results:")
+    for check_name, result in results.items():
+        status = "✅ PASSED" if result.get("success", False) else "❌ FAILED"
+        message = result.get("message", "No details")
+        monitor.logger.info(f"  {check_name}: {status} - {message}")
+    
+    # Only proceed if all validations pass
+    if not all(result.get("success", False) for result in results.values()):
+        monitor.logger.error("Setup validation failed. Please check the log file for details.")
+        monitor.logger.error("Fix the issues and try again.")
+        sys.exit(1)
+    
+    monitor.logger.info("✅ All validations passed!")
     
     try:
         # Start monitoring

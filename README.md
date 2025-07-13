@@ -32,7 +32,7 @@ A real-time webcam monitoring application that detects bad habits like shirt che
    cp env.example .env
    # Edit .env with your API key and settings
    ```
-4. **Start monitoring** (includes automatic validation):
+4. **Start monitoring**:
    ```bash
    python3 habit_monitor.py
    ```
@@ -73,7 +73,6 @@ WORKFLOW_ID=your-workflow-id
 CONFIDENCE_THRESHOLD=0.5
 
 # Optional: Camera settings
-CAMERA_INDEX=0
 CAMERA_WIDTH=640
 CAMERA_HEIGHT=480
 
@@ -83,15 +82,9 @@ AUDIO_WARNING_COOLDOWN=5
 SHOW_WEBCAM_FEED=false
 ```
 
-All configuration is now managed through environment variables loaded from the `.env` file. You can still override any setting using command-line flags.
+All configuration is managed through environment variables loaded from the `.env` file. This keeps sensitive data like API keys secure and makes it easy to manage different configurations for different environments.
 
-> **Note**: The `.env` file approach makes it easy to manage different configurations for different environments (development, production, etc.) and keeps sensitive data like API keys out of your code.
-
-#### Configuration Precedence (highest to lowest):
-1. **Command-line arguments** - `--confidence 0.8`
-2. **Environment variables** - `export CONFIDENCE_THRESHOLD=0.7`
-3. **`.env` file** - `CONFIDENCE_THRESHOLD=0.6`
-4. **Default values** - Built-in defaults in `config.py`
+> **Note**: The application will validate that all required environment variables are set and exit with an error message if any are missing.
 
 #### Benefits of .env Configuration:
 - ✅ **Security**: API keys and sensitive data stay in `.env` (which should not be committed to git)
@@ -111,62 +104,44 @@ This version now uses Roboflow's `InferencePipeline` which provides:
 
 ### 4. Test the Setup
 
-The application will automatically validate your setup when you run it. To see just the configuration without starting monitoring:
-
-```bash
-python3 habit_monitor.py --show-config
-```
+The application will automatically validate your setup when you run it and display the current configuration in the log file.
 
 ## Usage
 
-### Basic Usage
+### Running the Application
 
 ```bash
 python3 habit_monitor.py
 ```
 
-### Command Line Options
+The application will:
+1. **Validate environment variables** - Check that all required variables are set in `.env`
+2. **Display configuration** - Log current settings to the timestamped log file
+3. **Run system validation** - Test camera, workflow, and audio systems
+4. **Start monitoring** - Begin real-time habit detection
+
+### Configuration
+
+All configuration is done through the `.env` file:
 
 ```bash
-python3 habit_monitor.py --help
+# Required settings
+ROBOFLOW_API_KEY=your-actual-api-key-here
+WORKSPACE_NAME=your-workspace-name
+WORKFLOW_ID=your-workflow-id
+
+# Optional settings with defaults
+CONFIDENCE_THRESHOLD=0.5
+ENABLE_AUDIO_WARNINGS=true
+AUDIO_WARNING_COOLDOWN=5
+SHOW_WEBCAM_FEED=false
 ```
 
-Options:
-- `--workspace`: Roboflow workspace name (default: from config.py)
-- `--workflow-id`: Workflow ID for habit detection (default: from config.py)
-- `--confidence`: Confidence threshold for detection (default: from config.py)
-- `--camera`: Camera index to use (default: from config.py)
-- `--skip-validation`: Skip setup validation (not recommended)
-- `--show-config`: Show current configuration and exit
+### Logs
 
-### Examples
-
-```bash
-# Basic monitoring (includes automatic validation)
-python3 habit_monitor.py
-
-# Show current configuration
-python3 habit_monitor.py --show-config
-
-# Skip validation (not recommended)
-python3 habit_monitor.py --skip-validation
-
-# Use a different camera
-python3 habit_monitor.py --camera 1
-
-# Use a different workspace
-python3 habit_monitor.py --workspace my-other-workspace
-
-# Adjust confidence threshold
-python3 habit_monitor.py --confidence 0.7
-
-# Logs are automatically saved to timestamped files
-# Example: logs/habit_monitor_20250713_162834.log
-python3 habit_monitor.py --confidence 0.8
-
-# Use a specific workflow
-python3 habit_monitor.py --workflow-id "my-habit-workflow"
-```
+Logs are automatically saved to timestamped files in the `logs/` directory:
+- Example: `logs/habit_monitor_20250713_162834.log`
+- Contains configuration, validation results, and detection events
 
 ## CLI Dashboard
 

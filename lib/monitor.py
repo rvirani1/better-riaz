@@ -19,15 +19,13 @@ from .models import parse_workflow_response
 class HabitMonitor:
     """Simplified habit monitoring using Roboflow InferencePipeline"""
     
-    def __init__(self, workspace_name, workflow_id, confidence_threshold=0.7, 
-                 camera_index=0, config=None):
+    def __init__(self, workspace_name, workflow_id, confidence_threshold=0.7, config=None):
         
         # Store session start time for consistent timestamps
         self.session_start_time = datetime.now()
         
         # Validate parameters
         self.confidence_threshold = validate_confidence(confidence_threshold)
-        self.camera_index = camera_index
         self.workspace_name = workspace_name
         self.workflow_id = workflow_id
         
@@ -94,7 +92,7 @@ class HabitMonitor:
                 api_key=self.api_key,
                 workspace_name=self.workspace_name,
                 workflow_id=self.workflow_id,
-                video_reference=self.camera_index,
+                video_reference=0,
                 on_prediction=lambda x, y: None  # Dummy callback
             )
             results["Camera & Workflow"] = {"success": True, "message": "Camera and workflow accessible"}
@@ -119,7 +117,7 @@ class HabitMonitor:
                 api_key=self.api_key,
                 max_fps=self.config.get("CAMERA_FPS", 15),
                 on_prediction=self._on_prediction,
-                video_reference=self.camera_index,
+                video_reference=0,
                 workflow_id=self.workflow_id,
                 workspace_name=self.workspace_name,
             )
@@ -274,7 +272,6 @@ class HabitMonitor:
             "workspace_name": self.workspace_name,
             "workflow_id": self.workflow_id,
             "confidence_threshold": self.confidence_threshold,
-            "camera_index": self.camera_index,
             "audio_enabled": self.audio_manager.enabled if self.audio_manager else False,
             "audio_cooldown": self.audio_manager.cooldown_seconds if self.audio_manager else 0,
             "display_refresh_rate": self.display_manager.refresh_rate if self.display_manager else 0,
