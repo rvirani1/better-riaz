@@ -1,0 +1,9 @@
+debugpy
+inference
+opencv-python
+requests
+numpy
+click
+colorama
+playsound
+python-dotenv

@@ -1,0 +1,31 @@
+{
+  "description": "Example response from a Roboflow workflow for habit detection",
+  "example_response": {
+    "outputs": [
+      {
+        "predictions": [
+          {
+            "confidence": 0.85,
+            "class": "shirt_chewing",
+            "x": 320,
+            "y": 240,
+            "width": 100,
+            "height": 80
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    "The 'confidence' field should be a float between 0.0 and 1.0",
+    "The 'class' field should match the habit type you're detecting",
+    "Additional fields like bounding box coordinates are optional",
+    "The parse_workflow_response() function in habit_monitor.py will extract the confidence and class"
+  ],
+  "supported_habit_classes": [
+    "shirt_chewing",
+    "face_touching",
+    "fidgeting",
+    "nail_biting"
+  ]
+} 

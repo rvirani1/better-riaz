@@ -1,0 +1,38 @@
+2025-07-13 15:41:52,074 - lib.stats - INFO - No existing statistics file found, starting fresh
+2025-07-13 15:41:53,718 - lib.camera - INFO - Camera 0 initialized at 640x480
+2025-07-13 15:41:53,790 - lib.audio - INFO - Testing audio system...
+2025-07-13 15:41:55,682 - lib.audio - INFO - Audio warning played for test
+2025-07-13 15:41:55,683 - lib.audio - INFO - Audio test completed
+2025-07-13 15:41:55,683 - lib.audio - INFO - Testing audio system...
+2025-07-13 15:41:57,592 - lib.audio - INFO - Audio warning played for test
+2025-07-13 15:41:57,592 - lib.audio - INFO - Audio test completed
+2025-07-13 15:41:57,704 - lib.camera - INFO - Camera released
+2025-07-13 15:54:27,067 - lib.stats - INFO - No existing statistics file found, starting fresh
+2025-07-13 15:54:27,067 - root - INFO - HabitMonitor initialized with InferencePipeline
+2025-07-13 16:01:54,882 - lib.stats - INFO - No existing statistics file found, starting fresh
+2025-07-13 16:01:54,882 - root - INFO - HabitMonitor initialized with InferencePipeline
+2025-07-13 16:01:54,882 - lib.audio - INFO - Testing audio system...
+2025-07-13 16:01:57,287 - lib.audio - INFO - Audio warning played for test
+2025-07-13 16:01:57,288 - lib.audio - INFO - Audio test completed
+2025-07-13 16:02:44,484 - lib.stats - INFO - No existing statistics file found, starting fresh
+2025-07-13 16:02:44,484 - root - INFO - HabitMonitor initialized with InferencePipeline
+2025-07-13 16:02:44,484 - lib.audio - INFO - Testing audio system...
+2025-07-13 16:02:46,869 - lib.audio - INFO - Audio warning played for test
+2025-07-13 16:02:46,870 - lib.audio - INFO - Audio test completed
+2025-07-13 16:03:38,686 - lib.stats - INFO - No existing statistics file found, starting fresh
+2025-07-13 16:03:38,686 - root - INFO - HabitMonitor initialized with InferencePipeline
+2025-07-13 16:03:38,686 - lib.audio - INFO - Testing audio system...
+2025-07-13 16:03:41,078 - lib.audio - INFO - Audio warning played for test
+2025-07-13 16:03:41,079 - lib.audio - INFO - Audio test completed
+2025-07-13 16:03:42,406 - root - INFO - Starting habit monitoring...
+2025-07-13 16:03:42,407 - lib.stats - INFO - Statistics session started
+2025-07-13 16:03:42,407 - lib.display - INFO - Display manager started
+2025-07-13 16:03:42,407 - root - INFO - Habit monitoring started successfully
+2025-07-13 16:04:05,868 - root - INFO - Received signal 2, stopping monitoring...
+2025-07-13 16:04:05,868 - root - INFO - Stopping habit monitoring...
+2025-07-13 16:04:06,869 - lib.display - INFO - Display manager stopped
+2025-07-13 16:04:06,869 - lib.stats - INFO - Statistics saved to habit_statistics.json
+2025-07-13 16:04:06,869 - lib.stats - INFO - Statistics session ended
+2025-07-13 16:04:06,869 - root - ERROR - Error during monitoring: 'StatsTracker' object has no attribute 'save_statistics'
+2025-07-13 16:12:42,408 - root - ERROR - Error during monitoring: 'StatsTracker' object has no attribute 'save_statistics'
+2025-07-13 16:21:35,378 - root - ERROR - Error during monitoring: 'StatsTracker' object has no attribute 'save_statistics'
