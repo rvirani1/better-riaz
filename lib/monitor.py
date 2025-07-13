@@ -9,12 +9,11 @@ import pprint
 import os
 from datetime import datetime
 from inference import InferencePipeline
-from pydantic import ValidationError
 from .audio import AudioManager
 from .display import DisplayManager
 from .stats import StatsTracker
 from .utils import setup_logging, validate_confidence
-from .models import parse_workflow_response 
+from .models import is_chomping_detected, get_top_class, get_confidence 
 
 
 class HabitMonitor:
@@ -182,44 +181,29 @@ class HabitMonitor:
     def _process_prediction(self, result):
         """Process prediction result to determine if a habit was detected and extract data"""
         try:
-            # Parse the workflow response using Pydantic models
-            workflow_response = parse_workflow_response(result)
-            
-            # Get the first result (typically there's only one)
-            first_result = workflow_response.first_result
+            # Use simple utility functions to extract what we need
+            habit_detected, confidence = is_chomping_detected(result, self.confidence_threshold)
+            top_class = get_top_class(result)
             
             # Extract prediction data
             prediction_data = {
-                'top_class': first_result.top_class,
-                'confidence': first_result.detection_confidence
+                'top_class': top_class,
+                'confidence': confidence
             }
             
-            # Log additional information if available
-            if first_result.has_detection_predictions:
-                detection_count = len(first_result.detection_predictions.predictions)
-                self.logger.debug(f"Detection predictions available: {detection_count} detections")
-            
-            # Check if chomping was detected with sufficient confidence
-            if first_result.is_chomping_detected and first_result.detection_confidence >= self.confidence_threshold:
-                self.logger.debug(f"Chomping detected: {first_result.top_class} with confidence {first_result.detection_confidence:.3f}")
-                return True, prediction_data
+            # Log the detection result
+            if habit_detected:
+                self.logger.debug(f"Chomping detected: {top_class} with confidence {confidence:.3f}")
             else:
-                self.logger.debug(f"No chomping: {first_result.top_class} with confidence {first_result.detection_confidence:.3f}")
-                return False, prediction_data
+                self.logger.debug(f"No chomping: {top_class} with confidence {confidence:.3f}")
             
-        except ValidationError as e:
-            self.logger.error(f"CRITICAL ERROR: Failed to parse workflow response with Pydantic models: {e}")
-            self.logger.error(f"Raw result: {pprint.pformat(result)}")
-            self.logger.error("Application will terminate due to invalid workflow response format")
-            self.stop_monitoring()
-            sys.exit(1)
+            return habit_detected, prediction_data
             
         except Exception as e:
-            self.logger.error(f"CRITICAL ERROR: Unexpected error processing prediction result: {e}")
+            self.logger.error(f"Error processing prediction result: {e}")
             self.logger.error(f"Raw result: {pprint.pformat(result)}")
-            self.logger.error("Application will terminate due to processing error")
-            self.stop_monitoring()
-            sys.exit(1)
+            # Don't terminate the application, just return no detection
+            return False, {'top_class': 'unknown', 'confidence': 0.0}
     
     def stop_monitoring(self):
         """Stop the monitoring pipeline"""

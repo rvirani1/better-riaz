@@ -60,8 +60,7 @@
     "- top_class: The top classification result",
     "- classification_predictions: Detailed classification information",
     "- detection_predictions: Bounding box detections (can be null or empty)",
-    "All data is validated using Pydantic models in lib/models.py",
-    "Use parse_workflow_response() from lib.models to parse and validate responses",
+    "Use utility functions from lib.models to safely access workflow response data",
     "The WorkflowProcessor class in lib/workflow_utils.py provides helper methods"
   ],
   "supported_habit_classes": [
@@ -71,12 +70,11 @@
     "fidgeting",
     "nail_biting"
   ],
-  "pydantic_models": {
-    "WorkflowResponse": "Top-level response containing list of results (wraps single dict)",
-    "WorkflowResult": "Individual result with all prediction data",
-    "ClassificationPredictions": "Classification details and predictions",
-    "DetectionPredictions": "Bounding box detections (optional)",
-    "OutputImage": "Image data and video metadata",
-    "VideoMetadata": "Frame and video information"
+  "utility_functions": {
+    "is_chomping_detected": "Check if chomping was detected above confidence threshold",
+    "get_top_class": "Get the top classification class",
+    "get_confidence": "Get the confidence score",
+    "has_detection_predictions": "Check if detection predictions are available",
+    "process_workflow_result": "Process a workflow result and extract key information"
   }
 } 

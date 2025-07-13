@@ -1,163 +1,208 @@
 """
-Pydantic models for workflow result validation and parsing
+Simple utility functions for safely accessing workflow response values
 """
 
-from typing import List, Optional
-from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
+from typing import Dict, Any, Optional, Tuple
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-class VideoMetadata(BaseModel):
-    """Video metadata information"""
-    video_identifier: str
-    frame_number: int
-    frame_timestamp: datetime
-    fps: int
-    measured_fps: Optional[float] = None
-    comes_from_video_file: Optional[bool] = None
-
-
-class OutputImage(BaseModel):
-    """Output image structure with base64 data and metadata"""
-    type: str = "base64"
-    value: str = ""
-    video_metadata: VideoMetadata
-
-
-class ImageInfo(BaseModel):
-    """Image dimensions information"""
-    width: int
-    height: int
-
-
-class ClassificationPrediction(BaseModel):
-    """Individual classification prediction"""
-    class_: str = Field(..., alias="class")
-    class_id: int
-    confidence: float
-    
-    @field_validator('confidence')
-    @classmethod
-    def validate_confidence(cls, v):
-        if not 0.0 <= v <= 1.0:
-            raise ValueError('Confidence must be between 0.0 and 1.0')
-        return v
-
-
-class ClassificationPredictions(BaseModel):
-    """Classification predictions structure"""
-    inference_id: str
-    time: float
-    image: ImageInfo
-    predictions: List[ClassificationPrediction]
-    top: str
-    confidence: float
-    prediction_type: str = "classification"
-    parent_id: str
-    root_parent_id: str
-    
-    @field_validator('confidence')
-    @classmethod
-    def validate_confidence(cls, v):
-        if not 0.0 <= v <= 1.0:
-            raise ValueError('Confidence must be between 0.0 and 1.0')
-        return v
-
-
-class DetectionPrediction(BaseModel):
-    """Individual detection prediction with bounding box"""
-    width: float
-    height: float
-    x: float
-    y: float
-    confidence: float
-    class_id: int
-    class_: str = Field(..., alias="class")
-    detection_id: str
-    parent_id: str
-    
-    @field_validator('confidence')
-    @classmethod
-    def validate_confidence(cls, v):
-        if not 0.0 <= v <= 1.0:
-            raise ValueError('Confidence must be between 0.0 and 1.0')
-        return v
-
-
-class DetectionPredictions(BaseModel):
-    """Detection predictions structure (can be empty)"""
-    image: Optional[ImageInfo] = None
-    predictions: List[DetectionPrediction] = []
-
-
-class WorkflowResult(BaseModel):
-    """Complete workflow result structure"""
-    output_image: Optional[OutputImage] = None
-    top_class: str
-    classification_predictions: ClassificationPredictions
-    detection_predictions: Optional[DetectionPredictions] = None
-    
-    @property
-    def is_chomping_detected(self) -> bool:
-        """Check if chomping was detected"""
-        return self.top_class == "chomping"
-    
-    @property
-    def detection_confidence(self) -> float:
-        """Get the detection confidence"""
-        return self.classification_predictions.confidence
-    
-    @property
-    def has_detection_predictions(self) -> bool:
-        """Check if detection predictions are present and not empty"""
-        return (self.detection_predictions is not None and 
-                len(self.detection_predictions.predictions) > 0)
-
-
-class WorkflowResponse(BaseModel):
-    """Top-level workflow response (list of results)"""
-    results: List[WorkflowResult]
-    
-    @field_validator('results')
-    @classmethod
-    def validate_results(cls, v):
-        if not v:
-            raise ValueError('Results cannot be empty')
-        return v
-    
-    @property
-    def first_result(self) -> WorkflowResult:
-        """Get the first result (convenience method)"""
-        return self.results[0]
-    
-    @property
-    def has_chomping_detection(self) -> bool:
-        """Check if any result has chomping detection"""
-        return any(result.is_chomping_detected for result in self.results)
-    
-    @property
-    def max_confidence(self) -> float:
-        """Get the maximum confidence across all results"""
-        return max(result.detection_confidence for result in self.results)
-    
-    @property
-    def chomping_results(self) -> List[WorkflowResult]:
-        """Get only the results with chomping detection"""
-        return [result for result in self.results if result.is_chomping_detected]
-
-
-def parse_workflow_response(response_data: dict) -> WorkflowResponse:
+def is_chomping_detected(workflow_result: Dict[str, Any], confidence_threshold: float = 0.5) -> Tuple[bool, float]:
     """
-    Parse workflow response data into validated Pydantic models
+    Check if chomping was detected in the workflow result with confidence above threshold
     
     Args:
-        response_data: Raw workflow response (single dict result)
+        workflow_result: Raw workflow response dictionary
+        confidence_threshold: Minimum confidence threshold (default 0.5)
         
     Returns:
-        WorkflowResponse: Validated workflow response
-        
-    Raises:
-        ValidationError: If the response doesn't match expected structure
+        Tuple of (is_chomping_detected, confidence_score)
     """
-    # Wrap single dict result in a list for WorkflowResponse
-    return WorkflowResponse(results=[response_data]) 
+    try:
+        # Check if we have classification predictions
+        classification_predictions = workflow_result.get('classification_predictions', {})
+        if not classification_predictions:
+            logger.debug("No classification_predictions found in workflow result")
+            return False, 0.0
+        
+        # Get the top class and confidence
+        top_class = classification_predictions.get('top', '')
+        confidence = classification_predictions.get('confidence', 0.0)
+        
+        # Check if it's chomping and above threshold
+        is_chomping = top_class == 'chomping'
+        above_threshold = confidence >= confidence_threshold
+        
+        logger.debug(f"Top class: {top_class}, Confidence: {confidence}, Threshold: {confidence_threshold}")
+        
+        return is_chomping and above_threshold, confidence
+        
+    except Exception as e:
+        logger.error(f"Error checking chomping detection: {e}")
+        return False, 0.0
+
+
+def get_top_class(workflow_result: Dict[str, Any]) -> str:
+    """
+    Get the top classification class from the workflow result
+    
+    Args:
+        workflow_result: Raw workflow response dictionary
+        
+    Returns:
+        Top classification class or empty string if not found
+    """
+    try:
+        # Try top_class first (if available at root level)
+        if 'top_class' in workflow_result:
+            return workflow_result['top_class']
+        
+        # Fall back to classification_predictions.top
+        classification_predictions = workflow_result.get('classification_predictions', {})
+        return classification_predictions.get('top', '')
+        
+    except Exception as e:
+        logger.error(f"Error getting top class: {e}")
+        return ''
+
+
+def get_confidence(workflow_result: Dict[str, Any]) -> float:
+    """
+    Get the confidence score from the workflow result
+    
+    Args:
+        workflow_result: Raw workflow response dictionary
+        
+    Returns:
+        Confidence score or 0.0 if not found
+    """
+    try:
+        classification_predictions = workflow_result.get('classification_predictions', {})
+        return classification_predictions.get('confidence', 0.0)
+        
+    except Exception as e:
+        logger.error(f"Error getting confidence: {e}")
+        return 0.0
+
+
+def get_processing_time(workflow_result: Dict[str, Any]) -> float:
+    """
+    Get the processing time from the workflow result
+    
+    Args:
+        workflow_result: Raw workflow response dictionary
+        
+    Returns:
+        Processing time in seconds or 0.0 if not found
+    """
+    try:
+        classification_predictions = workflow_result.get('classification_predictions', {})
+        return classification_predictions.get('time', 0.0)
+        
+    except Exception as e:
+        logger.error(f"Error getting processing time: {e}")
+        return 0.0
+
+
+def get_inference_id(workflow_result: Dict[str, Any]) -> str:
+    """
+    Get the inference ID from the workflow result
+    
+    Args:
+        workflow_result: Raw workflow response dictionary
+        
+    Returns:
+        Inference ID or empty string if not found
+    """
+    try:
+        classification_predictions = workflow_result.get('classification_predictions', {})
+        return classification_predictions.get('inference_id', '')
+        
+    except Exception as e:
+        logger.error(f"Error getting inference ID: {e}")
+        return ''
+
+
+def get_image_dimensions(workflow_result: Dict[str, Any]) -> Tuple[int, int]:
+    """
+    Get image dimensions from the workflow result
+    
+    Args:
+        workflow_result: Raw workflow response dictionary
+        
+    Returns:
+        Tuple of (width, height) or (0, 0) if not found
+    """
+    try:
+        classification_predictions = workflow_result.get('classification_predictions', {})
+        image_info = classification_predictions.get('image', {})
+        width = image_info.get('width', 0)
+        height = image_info.get('height', 0)
+        return width, height
+        
+    except Exception as e:
+        logger.error(f"Error getting image dimensions: {e}")
+        return 0, 0
+
+
+def has_detection_predictions(workflow_result: Dict[str, Any]) -> bool:
+    """
+    Check if the workflow result has detection predictions
+    
+    Args:
+        workflow_result: Raw workflow response dictionary
+        
+    Returns:
+        True if detection predictions are present and not empty
+    """
+    try:
+        detection_predictions = workflow_result.get('detection_predictions')
+        if detection_predictions is None:
+            return False
+        
+        # Handle both dictionary format and Detections object
+        if isinstance(detection_predictions, dict):
+            predictions = detection_predictions.get('predictions', [])
+            return len(predictions) > 0
+        
+        # Handle Detections object (has xyxy attribute)
+        if hasattr(detection_predictions, 'xyxy') and detection_predictions.xyxy is not None:
+            return len(detection_predictions.xyxy) > 0
+            
+        return False
+        
+    except Exception as e:
+        logger.error(f"Error checking detection predictions: {e}")
+        return False
+
+
+def process_workflow_result(workflow_result: Dict[str, Any], confidence_threshold: float = 0.5) -> Dict[str, Any]:
+    """
+    Process a workflow result and extract key information
+    
+    Args:
+        workflow_result: Raw workflow response dictionary
+        confidence_threshold: Minimum confidence threshold
+        
+    Returns:
+        Dictionary with processed information
+    """
+    is_habit_detected, confidence = is_chomping_detected(workflow_result, confidence_threshold)
+    
+    return {
+        'is_habit_detected': is_habit_detected,
+        'top_class': get_top_class(workflow_result),
+        'confidence': confidence,
+        'above_threshold': confidence >= confidence_threshold,
+        'has_detections': has_detection_predictions(workflow_result),
+        'processing_time': get_processing_time(workflow_result),
+        'inference_id': get_inference_id(workflow_result),
+        'image_dimensions': get_image_dimensions(workflow_result),
+        'raw_available': {
+            'classification_predictions': 'classification_predictions' in workflow_result,
+            'detection_predictions': 'detection_predictions' in workflow_result,
+            'output_image': 'output_image' in workflow_result,
+            'top_class': 'top_class' in workflow_result
+        }
+    } 
