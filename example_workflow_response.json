@@ -63,11 +63,11 @@
     "Use utility functions from lib.models to safely access workflow response data"
   ],
   "supported_habit_classes": [
+    "about-to-chomp",
     "chomping",
-    "shirt_chewing",
-    "face_touching",
-    "fidgeting",
-    "nail_biting"
+    "eating",
+    "not_chomping",
+    "pondering"
   ],
   "utility_functions": {
     "is_chomping_detected": "Check if chomping was detected above confidence threshold",

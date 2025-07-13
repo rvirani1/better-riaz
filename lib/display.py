@@ -118,10 +118,10 @@ class DisplayManager:
     def _get_habit_display_name(self, habit_class):
         """Get a user-friendly display name for a habit class"""
         habit_names = {
-            "shirt_chewing": "Shirt Chewing 👕",
-            "face_touching": "Face Touching 👋",
-            "fidgeting": "Fidgeting 🤏",
-            "nail_biting": "Nail Biting 💅",
+            "about-to-chomp": "About to Chomp 👕",
+            "chomping": "Chomping 🤏",
+            "eating": "Eating 💅",
+            "pondering": "Pondering 💅",
             "unknown": "Unknown Habit",
             "none": "None"
         }

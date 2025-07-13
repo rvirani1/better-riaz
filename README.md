@@ -181,7 +181,7 @@ Your Roboflow workflow should:
 
 1. **Accept image input** in base64 format
 2. **Return predictions** with confidence scores
-3. **Include habit classifications** (e.g., "shirt_chewing", "face_touching")
+3. **Include habit classifications**
 
 ### Expected Workflow Response Format
 

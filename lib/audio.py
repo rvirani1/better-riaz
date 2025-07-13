@@ -1,16 +1,15 @@
 """
-Audio manager for habit detection warnings
+Audio manager for habit detection warnings (macOS only)
 """
 
 import os
-import sys
 import time
 import logging
 from threading import Lock
 
 
 class AudioManager:
-    """Handles audio warnings for habit detection"""
+    """Handles audio warnings for habit detection on macOS"""
     
     def __init__(self, enabled=True, cooldown_seconds=5):
         self.enabled = enabled
@@ -33,83 +32,41 @@ class AudioManager:
             
             # Play the warning sound
             try:
-                self._play_sound(habit_type)
+                self._play_macos_sound(habit_type)
                 self.last_warning_time = current_time
                 self.logger.info(f"Audio warning played for {habit_type}")
             except Exception as e:
                 self.logger.error(f"Failed to play audio warning: {e}")
-    
-    def _play_sound(self, habit_type):
-        """Play the actual sound based on platform"""
-        try:
-            if sys.platform == "win32":
-                self._play_windows_sound(habit_type)
-            elif sys.platform == "darwin":  # macOS
-                self._play_macos_sound(habit_type)
-            else:  # Linux and other Unix-like systems
-                self._play_linux_sound(habit_type)
-        except Exception as e:
-            # Fallback to terminal bell
-            print("\a")
-            self.logger.warning(f"Fallback to terminal bell: {e}")
-    
-    def _play_windows_sound(self, habit_type):
-        """Play sound on Windows"""
-        try:
-            import winsound
-            # Different beep patterns for different habits
-            if habit_type == "shirt_chewing":
-                winsound.Beep(800, 500)  # 800Hz for 500ms
-            elif habit_type == "face_touching":
-                winsound.Beep(1000, 300)  # 1000Hz for 300ms
-            else:
-                winsound.Beep(600, 400)  # Default beep
-        except ImportError:
-            print("\a")
+                # Fallback to terminal bell
+                print("\a")
     
     def _play_macos_sound(self, habit_type):
-        """Play sound on macOS"""
+        """Play sound on macOS using system sounds or text-to-speech"""
         # Different system sounds for different habits
         sound_map = {
-            "shirt_chewing": "/System/Library/Sounds/Ping.aiff",
-            "face_touching": "/System/Library/Sounds/Pop.aiff",
+            "about-to-chomp": "/System/Library/Sounds/Ping.aiff",
+            "chomping": "/System/Library/Sounds/Ping.aiff",
+            "eating": "/System/Library/Sounds/Ping.aiff",
+            "pondering": "/System/Library/Sounds/Ping.aiff",
             "default": "/System/Library/Sounds/Ping.aiff"
         }
         
         sound_file = sound_map.get(habit_type, sound_map["default"])
         
-        # Check if sound file exists
+        # Check if sound file exists and play it
         if os.path.exists(sound_file):
             os.system(f"afplay {sound_file}")
         else:
-            # Fallback to say command
+            # Fallback to text-to-speech
             messages = {
-                "shirt_chewing": "Stop chewing your shirt",
-                "face_touching": "Stop touching your face",
+                "about-to-chomp": "Stop chewing your shirt",
+                "chomping": "Stop chomping",
+                "eating": "Stop eating",
+                "pondering": "Stop pondering",
                 "default": "Bad habit detected"
             }
             message = messages.get(habit_type, messages["default"])
             os.system(f"say '{message}'")
-    
-    def _play_linux_sound(self, habit_type):
-        """Play sound on Linux"""
-        # Try different audio systems
-        audio_commands = [
-            "paplay /usr/share/sounds/alsa/Front_Left.wav",
-            "aplay /usr/share/sounds/alsa/Front_Left.wav",
-            "play /usr/share/sounds/sound-icons/bell.wav",
-            "speaker-test -t sine -f 800 -l 1",
-        ]
-        
-        for cmd in audio_commands:
-            try:
-                if os.system(cmd + " 2>/dev/null") == 0:
-                    return
-            except:
-                continue
-        
-        # If all else fails, use terminal bell
-        print("\a")
     
     def test_audio(self):
         """Test audio functionality"""
@@ -145,5 +102,5 @@ class AudioManager:
             "enabled": self.enabled,
             "cooldown_seconds": self.cooldown_seconds,
             "last_warning_time": self.last_warning_time,
-            "platform": sys.platform
+            "platform": "macOS"
         } 
