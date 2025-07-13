@@ -25,10 +25,6 @@ class StatsTracker:
         # Statistics
         self.total_detections = 0
         self.habit_sessions = []
-        self.detection_history = []
-        
-        # Load previous statistics if available
-        self._load_statistics()
     
     def start_session(self):
         """Start a new monitoring session"""
@@ -48,14 +44,6 @@ class StatsTracker:
     def update_habit_detection(self, detected, confidence=0.0, habit_class="unknown"):
         """Update habit detection state and statistics"""
         current_time = datetime.now()
-        
-        # Record detection event
-        self.detection_history.append({
-            "timestamp": current_time,
-            "detected": detected,
-            "confidence": confidence,
-            "class": habit_class
-        })
         
         if detected and not self.is_habit_active:
             # Habit session started
@@ -192,15 +180,6 @@ class StatsTracker:
                         "duration_seconds": session["duration"].total_seconds()
                     }
                     for session in self.habit_sessions
-                ],
-                "detection_history": [
-                    {
-                        "timestamp": event["timestamp"].isoformat(),
-                        "detected": event["detected"],
-                        "confidence": event["confidence"],
-                        "class": event["class"]
-                    }
-                    for event in self.detection_history
                 ]
             }
             
@@ -212,54 +191,13 @@ class StatsTracker:
         except Exception as e:
             self.logger.error(f"Failed to save statistics: {e}")
     
-    def _load_statistics(self):
-        """Load statistics from file"""
-        try:
-            with open(self.stats_file, 'r') as f:
-                data = json.load(f)
-            
-            # Restore session data
-            if data.get("session_start_time"):
-                self.session_start_time = datetime.fromisoformat(data["session_start_time"])
-            
-            self.total_detections = data.get("total_detections", 0)
-            self.total_habit_time = timedelta(seconds=data.get("total_habit_time_seconds", 0))
-            
-            # Restore habit sessions
-            self.habit_sessions = []
-            for session_data in data.get("habit_sessions", []):
-                self.habit_sessions.append({
-                    "start_time": datetime.fromisoformat(session_data["start_time"]),
-                    "end_time": datetime.fromisoformat(session_data["end_time"]),
-                    "duration": timedelta(seconds=session_data["duration_seconds"])
-                })
-            
-            # Restore detection history
-            self.detection_history = []
-            for event_data in data.get("detection_history", []):
-                self.detection_history.append({
-                    "timestamp": datetime.fromisoformat(event_data["timestamp"]),
-                    "detected": event_data["detected"],
-                    "confidence": event_data["confidence"],
-                    "class": event_data["class"]
-                })
-            
-            self.logger.info(f"Statistics loaded from {self.stats_file}")
-            
-        except FileNotFoundError:
-            self.logger.info("No existing statistics file found, starting fresh")
-        except Exception as e:
-            self.logger.error(f"Failed to load statistics: {e}")
-    
     def reset_statistics(self):
         """Reset all statistics"""
-        self.session_start_time = None
-        self.habit_start_time = None
-        self.total_habit_time = timedelta(0)
-        self.current_habit_duration = timedelta(0)
-        self.is_habit_active = False
         self.total_detections = 0
+        self.total_habit_time = timedelta(0)
         self.habit_sessions = []
-        self.detection_history = []
+        self.is_habit_active = False
+        self.habit_start_time = None
+        self.current_habit_duration = timedelta(0)
         
         self.logger.info("Statistics reset") 
