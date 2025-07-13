@@ -88,14 +88,6 @@ def validate_confidence(confidence):
     return float(confidence)
 
 
-def get_env_var(name, default=None, required=False):
-    """Get environment variable with validation"""
-    value = os.getenv(name, default)
-    if required and not value:
-        raise ValueError(f"Environment variable {name} is required")
-    return value
-
-
 def safe_divide(numerator, denominator):
     """Safely divide two numbers, returning 0 if denominator is 0"""
     if denominator == 0:

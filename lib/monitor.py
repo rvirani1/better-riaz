@@ -8,10 +8,12 @@ import sys
 import os
 from datetime import datetime
 from inference import InferencePipeline
+from pydantic import ValidationError
 from .audio import AudioManager
 from .display import DisplayManager
 from .stats import StatsTracker
 from .utils import setup_logging, validate_confidence
+from .models import parse_workflow_response 
 
 
 class HabitMonitor:
@@ -181,32 +183,44 @@ class HabitMonitor:
     def _process_prediction(self, result):
         """Process prediction result to determine if a habit was detected and extract data"""
         try:
-            # Default prediction data
+            # Parse the workflow response using Pydantic models
+            workflow_response = parse_workflow_response(result)
+            
+            # Get the first result (typically there's only one)
+            first_result = workflow_response.first_result
+            
+            # Extract prediction data
             prediction_data = {
-                'top_class': 'unknown',
-                'confidence': 0.0
+                'top_class': first_result.top_class,
+                'confidence': first_result.detection_confidence
             }
             
-            # Handle the workflow result format - result is a dict
-            if isinstance(result, dict) and result:
-                # Extract classification predictions directly from the dict
-                classification_preds = result.get('classification_predictions')
-                if classification_preds:
-                    prediction_data['top_class'] = classification_preds.get('top', 'unknown')
-                    prediction_data['confidence'] = classification_preds.get('confidence', 0.0)
-                    
-                    # Check if the top class is "chomping" and confidence is above threshold
-                    if prediction_data['top_class'] == "chomping" and prediction_data['confidence'] >= self.confidence_threshold:
-                        self.logger.debug(f"Chomping detected: {prediction_data['top_class']} with confidence {prediction_data['confidence']:.3f}")
-                        return True, prediction_data
-                    else:
-                        self.logger.debug(f"No chomping: {prediction_data['top_class']} with confidence {prediction_data['confidence']:.3f}")
+            # Log additional information if available
+            if first_result.has_detection_predictions:
+                detection_count = len(first_result.detection_predictions.predictions)
+                self.logger.debug(f"Detection predictions available: {detection_count} detections")
             
-            return False, prediction_data
+            # Check if chomping was detected with sufficient confidence
+            if first_result.is_chomping_detected and first_result.detection_confidence >= self.confidence_threshold:
+                self.logger.debug(f"Chomping detected: {first_result.top_class} with confidence {first_result.detection_confidence:.3f}")
+                return True, prediction_data
+            else:
+                self.logger.debug(f"No chomping: {first_result.top_class} with confidence {first_result.detection_confidence:.3f}")
+                return False, prediction_data
+            
+        except ValidationError as e:
+            self.logger.error(f"CRITICAL ERROR: Failed to parse workflow response with Pydantic models: {e}")
+            self.logger.error(f"Raw result: {result}")
+            self.logger.error("Application will terminate due to invalid workflow response format")
+            self.stop_monitoring()
+            sys.exit(1)
             
         except Exception as e:
-            self.logger.error(f"Error processing prediction result: {e}")
-            return False, {'top_class': 'unknown', 'confidence': 0.0}
+            self.logger.error(f"CRITICAL ERROR: Unexpected error processing prediction result: {e}")
+            self.logger.error(f"Raw result: {result}")
+            self.logger.error("Application will terminate due to processing error")
+            self.stop_monitoring()
+            sys.exit(1)
     
     def stop_monitoring(self):
         """Stop the monitoring pipeline"""
@@ -238,7 +252,7 @@ class HabitMonitor:
         self.logger.info(f"Log file saved: {self.log_file}")
         self.logger.info("Monitoring stopped")
     
-    def _signal_handler(self, signum, frame):
+    def _signal_handler(self, signum, _frame):
         """Handle interrupt signals"""
         self.logger.info(f"Received signal {signum}, stopping monitoring...")
         self.stop_monitoring()
@@ -271,5 +285,5 @@ class HabitMonitor:
     def __enter__(self):
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, _exc_type, _exc_val, _exc_tb):
         self.stop_monitoring() 

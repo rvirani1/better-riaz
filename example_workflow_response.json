@@ -1,31 +1,82 @@
 {
-  "description": "Example response from a Roboflow workflow for habit detection",
+  "description": "Example response from a Roboflow workflow for habit detection with Pydantic models",
   "example_response": {
-    "outputs": [
-      {
-        "predictions": [
-          {
-            "confidence": 0.85,
-            "class": "shirt_chewing",
-            "x": 320,
-            "y": 240,
-            "width": 100,
-            "height": 80
-          }
-        ]
+    "output_image": {
+      "type": "base64",
+      "value": "",
+      "video_metadata": {
+        "video_identifier": "image",
+        "frame_number": 0,
+        "frame_timestamp": "2025-01-13T21:40:15.775942",
+        "fps": 30,
+        "measured_fps": null,
+        "comes_from_video_file": null
       }
-    ]
+    },
+    "top_class": "chomping",
+    "classification_predictions": {
+      "inference_id": "6a7d112f-abf7-4c74-87f1-e867876a1608",
+      "time": 0.17550529199797893,
+      "image": {
+        "width": 640,
+        "height": 640
+      },
+      "predictions": [
+        {
+          "class": "chomping",
+          "class_id": 1,
+          "confidence": 0.9512
+        }
+      ],
+      "top": "chomping",
+      "confidence": 0.9512,
+      "prediction_type": "classification",
+      "parent_id": "image",
+      "root_parent_id": "image"
+    },
+    "detection_predictions": {
+      "image": {
+        "width": 640,
+        "height": 640
+      },
+      "predictions": [
+        {
+          "width": 244.71377563476562,
+          "height": 371.8823928833008,
+          "x": 283.6865692138672,
+          "y": 238.48693466186523,
+          "confidence": 0.9325940608978271,
+          "class_id": 1,
+          "class": "chomping",
+          "detection_id": "00f79e96-78dc-424b-af7c-08ea7131ca02",
+          "parent_id": "image"
+        }
+      ]
+    }
   },
   "notes": [
-    "The 'confidence' field should be a float between 0.0 and 1.0",
-    "The 'class' field should match the habit type you're detecting",
-    "Additional fields like bounding box coordinates are optional",
-    "The parse_workflow_response() function in habit_monitor.py will extract the confidence and class"
+    "The workflow returns a single dict containing:",
+    "- output_image: Base64 image data and video metadata",
+    "- top_class: The top classification result",
+    "- classification_predictions: Detailed classification information",
+    "- detection_predictions: Bounding box detections (can be null or empty)",
+    "All data is validated using Pydantic models in lib/models.py",
+    "Use parse_workflow_response() from lib.models to parse and validate responses",
+    "The WorkflowProcessor class in lib/workflow_utils.py provides helper methods"
   ],
   "supported_habit_classes": [
+    "chomping",
     "shirt_chewing",
     "face_touching",
     "fidgeting",
     "nail_biting"
-  ]
+  ],
+  "pydantic_models": {
+    "WorkflowResponse": "Top-level response containing list of results (wraps single dict)",
+    "WorkflowResult": "Individual result with all prediction data",
+    "ClassificationPredictions": "Classification details and predictions",
+    "DetectionPredictions": "Bounding box detections (optional)",
+    "OutputImage": "Image data and video metadata",
+    "VideoMetadata": "Frame and video information"
+  }
 } 

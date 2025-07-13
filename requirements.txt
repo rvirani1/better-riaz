@@ -7,3 +7,4 @@ click
 colorama
 playsound
 python-dotenv
+pydantic>=2.0
