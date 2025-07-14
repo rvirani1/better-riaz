@@ -27,7 +27,6 @@ AUDIO_WARNING_COOLDOWN = float(os.getenv("AUDIO_WARNING_COOLDOWN", "5"))    # Se
 
 # Display Settings
 REFRESH_RATE = float(os.getenv("REFRESH_RATE", "1.0"))        # Seconds between display updates
-SHOW_WEBCAM_FEED = os.getenv("SHOW_WEBCAM_FEED", "False").lower() == "true"  # Show webcam window (set to True for debugging)
 
 # Logging Settings
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")        # DEBUG, INFO, WARNING, ERROR
