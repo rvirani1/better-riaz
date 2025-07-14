@@ -48,7 +48,6 @@ class AudioManager:
             "pondering": os.path.join(self.project_root, "audio", "pondering.mp3"),
             "default": "/System/Library/Sounds/Ping.aiff"
         }
-        print(habit_type)
         
         sound_file = sound_map.get(habit_type, sound_map["default"])
         os.system(f"afplay '{sound_file}'")
