@@ -77,7 +77,6 @@ CAMERA_WIDTH=640
 CAMERA_HEIGHT=480
 
 # Optional: Audio and display settings
-ENABLE_AUDIO_WARNINGS=true
 AUDIO_WARNING_COOLDOWN=5
 SHOW_WEBCAM_FEED=false
 ```
@@ -132,7 +131,6 @@ WORKFLOW_ID=your-workflow-id
 
 # Optional settings with defaults
 CONFIDENCE_THRESHOLD=0.5
-ENABLE_AUDIO_WARNINGS=true
 AUDIO_WARNING_COOLDOWN=5
 SHOW_WEBCAM_FEED=false
 ```

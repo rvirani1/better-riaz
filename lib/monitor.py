@@ -43,7 +43,6 @@ class HabitMonitor:
         
         # Initialize components
         self.audio_manager = AudioManager(
-            enabled=self.config.get("ENABLE_AUDIO_WARNINGS", True),
             cooldown_seconds=self.config.get("AUDIO_WARNING_COOLDOWN", 5)
         )
         
@@ -247,7 +246,6 @@ class HabitMonitor:
             "workspace_name": self.workspace_name,
             "workflow_id": self.workflow_id,
             "confidence_threshold": self.confidence_threshold,
-            "audio_enabled": self.audio_manager.enabled if self.audio_manager else False,
             "audio_cooldown": self.audio_manager.cooldown_seconds if self.audio_manager else 0,
             "display_refresh_rate": self.display_manager.refresh_rate if self.display_manager else 0,
             "log_file": self.log_file,

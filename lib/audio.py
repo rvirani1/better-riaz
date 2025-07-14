@@ -11,8 +11,7 @@ from threading import Lock
 class AudioManager:
     """Handles audio warnings for habit detection on macOS"""
     
-    def __init__(self, enabled=True, cooldown_seconds=5):
-        self.enabled = enabled
+    def __init__(self, cooldown_seconds=5):
         self.cooldown_seconds = cooldown_seconds
         self.last_warning_time = 0
         self.warning_lock = Lock()
@@ -20,9 +19,6 @@ class AudioManager:
     
     def play_warning(self, habit_type="general"):
         """Play an audio warning for detected habit"""
-        if not self.enabled:
-            return
-        
         with self.warning_lock:
             current_time = time.time()
             

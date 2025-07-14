@@ -22,7 +22,7 @@ CAMERA_HEIGHT = int(os.getenv("CAMERA_HEIGHT", "480"))        # Camera resolutio
 CAMERA_FPS = int(os.getenv("CAMERA_FPS", "15"))           # Camera frames per second
 
 # Audio Settings
-ENABLE_AUDIO_WARNINGS = os.getenv("ENABLE_AUDIO_WARNINGS", "True").lower() == "true"  # Enable/disable audio warnings
+
 AUDIO_WARNING_COOLDOWN = float(os.getenv("AUDIO_WARNING_COOLDOWN", "5"))    # Seconds to wait between audio warnings
 
 # Display Settings
