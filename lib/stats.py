@@ -161,14 +161,3 @@ class StatsTracker:
             "detection_rate": f"{stats['detection_rate']:.1f}/min",
             "is_habit_active": stats["is_habit_active"]
         }
-    
-    def reset_statistics(self):
-        """Reset all statistics"""
-        self.total_detections = 0
-        self.total_habit_time = timedelta(0)
-        self.habit_sessions = []
-        self.is_habit_active = False
-        self.habit_start_time = None
-        self.current_habit_duration = timedelta(0)
-        
-        self.logger.info("Statistics reset") 
