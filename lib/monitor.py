@@ -159,7 +159,6 @@ class HabitMonitor:
             # Always update stats (detected or not)
             self.stats_tracker.update_habit_detection(
                 detected=habit_detected,
-                confidence=prediction_data['confidence'],
                 habit_class=prediction_data['top_class']
             )
             

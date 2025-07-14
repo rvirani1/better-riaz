@@ -37,7 +37,7 @@ class StatsTracker:
         
         self.logger.info("Statistics session ended")
     
-    def update_habit_detection(self, detected, confidence=0.0, habit_class="unknown"):
+    def update_habit_detection(self, detected, habit_class="unknown"):
         """Update habit detection state and statistics"""
         current_time = datetime.now()
         
