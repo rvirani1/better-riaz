@@ -128,14 +128,6 @@ class DisplayManager:
         
         return habit_names.get(habit_class, f"Habit: {habit_class}")
     
-    def show_startup_message(self):
-        """Show startup message"""
-        print_header("HABIT MONITOR CLI v1.0")
-        print()
-        print_status("Starting habit monitoring...", "info")
-        print_status("Monitoring for bad habits...", "info")
-        print()
-    
     def show_shutdown_message(self, stats_tracker=None):
         """Show shutdown message with session summary"""
         print(f"\n{Fore.YELLOW}Stopping habit monitoring...")
@@ -153,65 +145,6 @@ class DisplayManager:
             if stats['habit_sessions_count'] > 0:
                 print(f"  Average Session: {stats['average_session_duration']}")
                 print(f"  Habit Percentage: {stats['habit_percentage']}")
-    
-    def show_error(self, message):
-        """Show error message"""
-        print_status(f"Error: {message}", "error")
-    
-    def show_warning(self, message):
-        """Show warning message"""
-        print_status(f"Warning: {message}", "warning")
-    
-    def show_info(self, message):
-        """Show info message"""
-        print_status(message, "info")
-    
-    def show_success(self, message):
-        """Show success message"""
-        print_status(message, "success")
-    
-    def prompt_user(self, message, default=None):
-        """Prompt user for input"""
-        if default:
-            prompt = f"{Fore.CYAN}{message} [{default}]: {Style.RESET_ALL}"
-        else:
-            prompt = f"{Fore.CYAN}{message}: {Style.RESET_ALL}"
-        
-        try:
-            response = input(prompt)
-            return response.strip() if response.strip() else default
-        except KeyboardInterrupt:
-            return None
-    
-    def show_configuration(self, config_info):
-        """Show current configuration"""
-        print_header("CURRENT CONFIGURATION")
-        print()
-        
-        for key, value in config_info.items():
-            print(f"{Fore.CYAN}{key}: {Fore.WHITE}{value}")
-        
-        print()
-    
-    def show_validation_results(self, results):
-        """Show validation results"""
-        print_header("SYSTEM VALIDATION")
-        print()
-        
-        for check_name, result in results.items():
-            if result.get("success", False):
-                print(f"{Fore.GREEN}✅ {check_name}: {result.get('message', 'OK')}")
-            else:
-                print(f"{Fore.RED}❌ {check_name}: {result.get('message', 'Failed')}")
-        
-        print()
-    
-    def show_progress(self, message, progress=None):
-        """Show progress message"""
-        if progress is not None:
-            print(f"{Fore.YELLOW}{message} [{progress:.1f}%]")
-        else:
-            print(f"{Fore.YELLOW}{message}...")
     
     def __enter__(self):
         """Context manager entry"""
