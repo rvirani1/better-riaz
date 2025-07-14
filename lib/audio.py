@@ -16,8 +16,11 @@ class AudioManager:
         self.last_warning_time = 0
         self.warning_lock = Lock()
         self.logger = logging.getLogger(__name__)
+        
+        # Get the project root directory (parent of lib/)
+        self.project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    def play_warning(self, habit_type="general"):
+    def play_warning(self, habit_type):
         """Play an audio warning for detected habit"""
         with self.warning_lock:
             current_time = time.time()
@@ -38,17 +41,17 @@ class AudioManager:
     
     def _play_macos_sound(self, habit_type):
         """Play sound on macOS using custom MP3 files or system sounds as fallback"""
-        # Different custom sounds for different habits
+        # Different custom sounds for different habits with absolute paths
         sound_map = {
-            "about-to-chomp": "audio/about-to-chomp.mp3",
-            "chomping": "audio/chomping.mp3",
-            "eating": "audio/eating.mp3",
-            "pondering": "audio/pondering.mp3",
+            "about-to-chomp": os.path.join(self.project_root, "audio", "about-to-chomp.mp3"),
+            "chomping": os.path.join(self.project_root, "audio", "chomping.mp3"),
+            "pondering": os.path.join(self.project_root, "audio", "pondering.mp3"),
             "default": "/System/Library/Sounds/Ping.aiff"
         }
+        print(habit_type)
         
         sound_file = sound_map.get(habit_type, sound_map["default"])
-        os.system(f"afplay {sound_file}")
+        os.system(f"afplay '{sound_file}'")
     
     def test_audio(self):
         """Test audio functionality"""

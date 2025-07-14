@@ -167,7 +167,7 @@ class HabitMonitor:
                 current_time = time.time()
                 
                 # Play audio warning (respects cooldown)
-                self.audio_manager.play_warning()
+                self.audio_manager.play_warning(prediction_data['top_class'])
                 
                 # Log the detection
                 self.logger.info(f"Chomping detected: {prediction_data['top_class']} with confidence {prediction_data['confidence']:.3f}")
