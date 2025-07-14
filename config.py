@@ -17,8 +17,6 @@ WORKFLOW_ID = os.getenv("WORKFLOW_ID")
 CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.5"))  # Confidence threshold for habit detection (0.0 - 1.0)
 
 # Camera Settings
-CAMERA_WIDTH = int(os.getenv("CAMERA_WIDTH", "640"))         # Camera resolution width
-CAMERA_HEIGHT = int(os.getenv("CAMERA_HEIGHT", "480"))        # Camera resolution height
 CAMERA_FPS = int(os.getenv("CAMERA_FPS", "15"))           # Camera frames per second
 
 # Audio Settings

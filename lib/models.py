@@ -65,22 +65,3 @@ def get_top_class(workflow_result: Dict[str, Any]) -> str:
     except Exception as e:
         logger.error(f"Error getting top class: {e}")
         return ''
-
-
-def get_confidence(workflow_result: Dict[str, Any]) -> float:
-    """
-    Get the confidence score from the workflow result
-    
-    Args:
-        workflow_result: Raw workflow response dictionary
-        
-    Returns:
-        Confidence score or 0.0 if not found
-    """
-    try:
-        classification_predictions = workflow_result.get('classification_predictions', {})
-        return classification_predictions.get('confidence', 0.0)
-        
-    except Exception as e:
-        logger.error(f"Error getting confidence: {e}")
-        return 0.0

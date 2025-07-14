@@ -5,8 +5,8 @@ Display manager for CLI interface and dashboard
 import time
 import threading
 import logging
-from colorama import Fore, Style
-from .utils import clear_screen, print_header, print_status, format_duration
+from colorama import Fore
+from .utils import clear_screen, print_header 
 
 
 class DisplayManager:

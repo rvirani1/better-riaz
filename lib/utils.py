@@ -4,9 +4,8 @@ Utility functions for the habit monitor application
 
 import logging
 import os
-import sys
 from datetime import datetime, timedelta
-from colorama import Fore, Style
+from colorama import Fore
 
 
 def setup_logging(log_level="INFO", session_timestamp=None):
@@ -65,18 +64,6 @@ def print_header(title, width=60):
     print(f"{Fore.CYAN}{'='*width}")
     print(f"{Fore.CYAN}{title.center(width)}")
     print(f"{Fore.CYAN}{'='*width}")
-
-
-def print_status(message, status_type="info"):
-    """Print a status message with color coding"""
-    colors = {
-        "info": Fore.CYAN,
-        "success": Fore.GREEN,
-        "warning": Fore.YELLOW,
-        "error": Fore.RED
-    }
-    color = colors.get(status_type, Fore.WHITE)
-    print(f"{color}{message}")
 
 
 def validate_confidence(confidence):

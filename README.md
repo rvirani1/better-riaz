@@ -72,13 +72,8 @@ WORKFLOW_ID=your-workflow-id
 # Optional: Adjust detection sensitivity
 CONFIDENCE_THRESHOLD=0.5
 
-# Optional: Camera settings
-CAMERA_WIDTH=640
-CAMERA_HEIGHT=480
-
 # Optional: Audio and display settings
 AUDIO_WARNING_COOLDOWN=5
-SHOW_WEBCAM_FEED=false
 ```
 
 All configuration is managed through environment variables loaded from the `.env` file. This keeps sensitive data like API keys secure and makes it easy to manage different configurations for different environments.
@@ -132,7 +127,6 @@ WORKFLOW_ID=your-workflow-id
 # Optional settings with defaults
 CONFIDENCE_THRESHOLD=0.5
 AUDIO_WARNING_COOLDOWN=5
-SHOW_WEBCAM_FEED=false
 ```
 
 ### Logs
@@ -227,12 +221,10 @@ Enable debug logging in `config.py`:
 
 ```python
 LOG_LEVEL = "DEBUG"
-SHOW_WEBCAM_FEED = True  # Show camera preview
 ```
 
 ### Performance Issues
 
-- Increase `INFERENCE_INTERVAL` for slower inference
 - Reduce camera resolution in config
 - Check system resources (CPU, memory)
 

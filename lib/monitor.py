@@ -13,7 +13,7 @@ from .audio import AudioManager
 from .display import DisplayManager
 from .stats import StatsTracker
 from .utils import setup_logging, validate_confidence
-from .models import is_chomping_detected, get_top_class, get_confidence 
+from .models import is_chomping_detected, get_top_class 
 
 
 class HabitMonitor:
@@ -115,7 +115,7 @@ class HabitMonitor:
             # Initialize the InferencePipeline
             self.pipeline = InferencePipeline.init_with_workflow(
                 api_key=self.api_key,
-                
+
                 max_fps=self.config.get("CAMERA_FPS", 15),
                 on_prediction=self._on_prediction,
                 video_reference=0,
