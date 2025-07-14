@@ -2,7 +2,7 @@
 Simple utility functions for safely accessing workflow response values
 """
 
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Tuple
 import logging
 
 logger = logging.getLogger(__name__)
