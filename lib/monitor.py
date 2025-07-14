@@ -92,7 +92,8 @@ class HabitMonitor:
                 workspace_name=self.workspace_name,
                 workflow_id=self.workflow_id,
                 video_reference=0,
-                on_prediction=lambda x, y: None  # Dummy callback
+                on_prediction=lambda x, y: None,  # Dummy callback
+                image_input_name="frame"  # Map video frames to the 'frame' parameter
             )
             results["Camera & Workflow"] = {"success": True, "message": "Camera and workflow accessible"}
             # Don't start the test pipeline, just creating it validates access
@@ -114,11 +115,13 @@ class HabitMonitor:
             # Initialize the InferencePipeline
             self.pipeline = InferencePipeline.init_with_workflow(
                 api_key=self.api_key,
+                
                 max_fps=self.config.get("CAMERA_FPS", 15),
                 on_prediction=self._on_prediction,
                 video_reference=0,
                 workflow_id=self.workflow_id,
                 workspace_name=self.workspace_name,
+                image_input_name="frame"  # Map video frames to the 'frame' parameter
             )
             
             # Start statistics tracking
